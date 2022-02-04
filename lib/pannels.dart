@@ -600,10 +600,10 @@ class User_Text extends StatelessWidget{
         Column(
           crossAxisAlignment : CrossAxisAlignment.start,
           children : [
-            Text(username + '님',style : const TextStyle(fontFamily: 'NotoSansKR',fontSize: 20),),
+            Text(username + '님',style : const TextStyle(fontFamily: 'NotoSansKR',fontSize: 20,fontWeight: FontWeight.bold),),
             //car_number!=null ? Text(car_number, style : const TextStyle(fontWeight:FontWeight.bold,fontSize: 14),) : SizedBox(height: MediaQuery.of(context).size.height*(0.007)),
             SizedBox(height: MediaQuery.of(context).size.height*(0.007)),
-            Text('자동차 공기질',style : const TextStyle(fontFamily: 'NotoSansKR',fontSize: 20),),
+            Text('자동차 공기질',style : const TextStyle(fontFamily: 'NotoSansKR',fontSize: 20,fontWeight: FontWeight.bold),),
           ],
         ),
         Column(
@@ -611,7 +611,7 @@ class User_Text extends StatelessWidget{
           children : [
             Text(location,style:TextStyle(fontFamily: 'NotoSansKR',fontWeight:FontWeight.bold)),
             Text('last update : ',style:TextStyle(fontFamily: 'NotoSansKR',fontWeight:FontWeight.w300)),
-            Text(datetime,style : TextStyle(fontFamily: 'NotoSansKR',),),
+            Text(datetime,style : TextStyle(fontFamily: 'NotoSansKR',fontWeight: FontWeight.bold),),
           ],
         ),
       ],
@@ -629,7 +629,7 @@ class Left_right_scroll extends StatelessWidget {
         children: [
           SizedBox(width:MediaQuery.of(context).size.width*0.000001),
           Icon(Icons.arrow_back_ios,size:MediaQuery.of(context).size.height*(0.065),color:Colors.white),
-          FittedBox(fit:BoxFit.fitWidth,child:Text(left_right_scroll_text,style:TextStyle(fontFamily: 'NotoSansKR',fontSize:MediaQuery.of(context).size.height*(0.035),color:Colors.white)),),
+          FittedBox(fit:BoxFit.fitWidth,child:Text(left_right_scroll_text,style:TextStyle(fontFamily: 'NotoSansKR',fontWeight:FontWeight.bold,fontSize:MediaQuery.of(context).size.height*(0.035),color:Colors.white)),),
           Icon(Icons.arrow_forward_ios,size:MediaQuery.of(context).size.height*(0.065),color:Colors.white),
           SizedBox(width:MediaQuery.of(context).size.width*0.000001),
         ]

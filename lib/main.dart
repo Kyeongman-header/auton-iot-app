@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -188,10 +189,10 @@ class _QR_View_State extends State<QR_View>
   String result = "카메라 버튼을 눌러 qr 코드를 스캔하세요 .";
 
   Future _scanQR() async {
-    var qrResult = await BarcodeScanner.scan();
+    //var qrResult = await BarcodeScanner.scan();
 
-    context.read<User>().set_machine(qrResult.rawContent.toString(),context.read<Token_login>().Token);
-    //context.read<User>().set_machine("41",context.read<Token_login>().Token);
+    //context.read<User>().set_machine(qrResult.rawContent.toString(),context.read<Token_login>().Token);
+    context.read<User>().set_machine("41",context.read<Token_login>().Token);
     Timer(Duration(milliseconds: 700), () {
       context
           .read<User>()
@@ -221,7 +222,7 @@ class _QR_View_State extends State<QR_View>
       );
     });
     setState(() {
-      result = qrResult.rawContent.toString();
+      //result = qrResult.rawContent.toString();
     });
 
   }
@@ -705,7 +706,7 @@ class VerticallyScrollablePage extends StatelessWidget{
           ],
         );
       case 3 :
-        return Error_page();
+        return Page3();
       default :
         return Error_page();
     }
@@ -1185,7 +1186,7 @@ class _Inside_outside_State extends State<Inside_outside> {
   }
   void getlocation() async {
     Map<String,dynamic> _my_si_gun_gu;
-    final response=await http.get(Uri.parse('http://api.vworld.kr/req/data?service=data&request=GetFeature&data=LT_C_ADSIGG_INFO&key=FEA696B3-DA29-3EC5-95F3-5272C2CD83B5&geomFilter=point('+context.read<User>().longitude + ' ' + context.read<User>().latitude + ')'));
+    final response=await http.get(Uri.parse('https://api.vworld.kr/req/data?service=data&request=GetFeature&data=LT_C_ADSIGG_INFO&key=FEA696B3-DA29-3EC5-95F3-5272C2CD83B5&geomFilter=point('+context.read<User>().longitude + ' ' + context.read<User>().latitude + ')'));
     _my_si_gun_gu=jsonDecode(response.body);
     setState((){
       try {_location=_my_si_gun_gu['response']['result']['featureCollection']['features'][0]['properties']['sig_kor_nm'];
@@ -1303,20 +1304,222 @@ class _Inside_outside_State extends State<Inside_outside> {
 
 }
 
+class FilterData {
+  String lastfilterchangedate;
+  String ShouldChangeFilter;
+  Image filter_goodorbad;
+  Color filter_color;
+  String filter_state_word;
+  String filter_state_grade;
 
+  FilterData({required this.lastfilterchangedate, required this.ShouldChangeFilter,required  this.filter_goodorbad,required this.filter_color, required this.filter_state_word, required this.filter_state_grade});
 
+  factory FilterData.fromJson(Map<String, dynamic> json) {
+    return FilterData(
 
-
-class Page3 extends StatelessWidget{
-  const Page3({Key? key,}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context){
-    return const Center(
-      child: Text(
-        '3페이지',
-      ),
+      filter_state_grade: json['filter_state_grade'].toString(),
+      filter_state_word: json['filter_state_word'],
+      // lastfilterchangedate:"2022-01-01",
+      // ShouldChangeFilter: "필터 교체 필요",
+      // filter_goodorbad:Image.asset('images/good.png',scale : 1.0, fit: BoxFit.cover),
+      // filter_color:Colors.green,
+      lastfilterchangedate: DateTime.parse(json['lastfilterchangedate']).toString().substring(0,10),
+      ShouldChangeFilter: json['filter_state_word']=='좋음' ? "필터가 최신 상태입니다." : json['filter_state_word']=='보통' ? "필터가 사용중입니다..." : "필터를 교체해주세요.",
+      filter_goodorbad:json['filter_state_word']=='좋음' ? Image.asset('images/good.png',scale : 1.0, fit: BoxFit.cover) : Image.asset('images/bad.png',scale : 1.0, fit: BoxFit.cover),
+      filter_color:json['filter_state_word']=='좋음' ? Colors.green : json['filter_state_word']=='보통' ? Colors.grey : Colors.red,
     );
   }
 }
+class Page3 extends StatefulWidget{
+  const Page3({Key? key}) : super(key: key);
+  @override
+  State<Page3> createState() => _Page3_State();
+}
+class _Page3_State extends State<Page3> {
+
+  Future<FilterData>? _filterdata;
+  @override
+  void initState(){
+    super.initState();
+    setState((){_filterdata=fetchPost();});
+  }
+  Future<FilterData> fetchPost() async {
+    var yesterday_date = DateTime.now().subtract(Duration(days:1));
+    String yesterday_string = yesterday_date.toString().substring(0,10);
+    final response =
+    await http.get(Uri.parse('https://auton-iot.com/api/filter/?machine='+context.read<User>().machine),
+        headers: {'Authorization': 'Token ' + context
+        .read<Token_login>()
+        .Token});
+    if (response.statusCode == 200) {
+      // 만약 서버가 OK 응답을 반환하면, JSON을 파싱합니다.
+      return FilterData.fromJson(jsonDecode(response.body));
+      //마지막 가장 최신 데이터를 가져온다.
+    } else {
+      throw Exception('Failed to load post');
+    }
+  }
+  Future<void> _refresh() async
+  {
+    setState((){_filterdata=fetchPost();});
+  }
+
+  @override
+  Widget build(BuildContext context){
+    return FutureBuilder(
+        future:_filterdata,
+        builder:(BuildContext context, AsyncSnapshot snapshot){
+          if(snapshot.hasData==false)
+            {
+              return Center(child:CircularProgressIndicator());
+            }
+          else if(snapshot.hasError)
+            {
+              return Center(
+                child: Text(
+                  'Error: ${snapshot.error}',
+                  style: TextStyle(fontSize: 15),
+                ),
+              );
+            }
+          else {
+            return RefreshIndicator(
+              onRefresh: _refresh,
+
+              child: ListView(
+                children: [
+                  Container(
+
+                    color: Color(0xff19B35D),
+                    height: MediaQuery
+                        .of(context)
+                        .size
+                        .height,
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width,
+
+                    child: Column(
+                      children: [
+                        SizedBox(height: MediaQuery
+                            .of(context)
+                            .size
+                            .height * 0.02),
+                        Container(
+
+                          margin: EdgeInsets.all(5),
+                          padding: EdgeInsets.all(5),
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(15.0)),
+                            color: Colors.white,
+                          ),
+                          child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Column(
+                                    children: [
+                                      Text("마지막 필터 교체 날짜: " + snapshot.data!.lastfilterchangedate,
+                                          style: TextStyle(fontSize: 10)),
+                                      Text(
+                                          snapshot.data!.ShouldChangeFilter, style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold)),
+                                    ]
+                                ),
+                                Container(
+                                  child: snapshot.data!.filter_goodorbad,
+                                ),
+                              ]
+                          ),
+                        ),
+                        SizedBox(height: MediaQuery
+                            .of(context)
+                            .size
+                            .height * 0.08),
+                        Container(
+                          width: MediaQuery
+                              .of(context)
+                              .size
+                              .width * 0.9,
+
+                          margin: EdgeInsets.all(5),
+                          padding: EdgeInsets.all(10),
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(15.0)),
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .height * 0.4,
+                                  width: MediaQuery
+                                      .of(context)
+                                      .size
+                                      .height * 0.4,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                          width: 10, color: snapshot.data!.filter_color)
+                                  ),
+                                  child: Center(
+                                    child: Column(
+                                        mainAxisAlignment: MainAxisAlignment
+                                            .spaceEvenly,
+                                        children: [
+                                          Text(snapshot.data!.filter_state_grade,
+                                              style: TextStyle(
+                                                  fontSize: 50,
+                                                  color: snapshot.data!.filter_color,
+                                                  fontWeight: FontWeight.bold)),
+                                          Row(
+
+                                              mainAxisAlignment: MainAxisAlignment
+                                                  .center,
+                                              children: [
+                                                Text("필터 성능 ",
+                                                    style: TextStyle(
+                                                        fontSize: 25)),
+                                                Text(snapshot.data!.filter_state_word,
+                                                    style: TextStyle(
+                                                        fontSize: 25,
+                                                        color: snapshot.data!.filter_color,
+                                                        fontWeight: FontWeight
+                                                            .bold))
+                                              ]),
+                                        ]
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: MediaQuery
+                                    .of(context)
+                                    .size
+                                    .height * 0.05),
+                                Text("본 수치는 필터 성능을 나타내는 절대적인 수치는 아님을 알려드립니다.",
+                                    style: TextStyle(fontSize: 12),
+                                    textAlign: TextAlign.center)
+                              ],
+                            ),
+
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+    }
+    );
+      }
+  }
+
 

@@ -63,7 +63,7 @@ class User with ChangeNotifier{
       try {
           setLocation();
           final response=await http.post(Uri.parse(
-              'http://auton-iot.com/api/gps/'),
+              'https://auton-iot.com/api/gps/'),
               body: jsonEncode(
                   <String, String>{"gps" : "SRID=4326;POINT ("+_longitude+' '+_latitude+')'}),
               headers: {'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ class User with ChangeNotifier{
   void set_carnumber(String Token,String car_number) async{
     final SharedPreferences prefs = await  SharedPreferences.getInstance();
     final response=await http.patch(Uri.parse(
-        'http://auton-iot.com/api/machine/'+_machine+'/'),
+        'https://auton-iot.com/api/machine/'+_machine+'/'),
         body: jsonEncode(
             <String, String>{"car_number" : car_number}),
         headers: {'Content-Type': 'application/json',
@@ -111,7 +111,7 @@ class User with ChangeNotifier{
   void set_machine(String qr, String Token) async{
     final SharedPreferences prefs = await  SharedPreferences.getInstance();
     final response=await http.patch(Uri.parse(
-        'http://auton-iot.com/api/machine/'+qr+'/'),
+        'https://auton-iot.com/api/machine/'+qr+'/'),
         body: jsonEncode(
             <String, String>{"id": qr, "user": _user_id}),
         headers: {'Content-Type': 'application/json',
