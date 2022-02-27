@@ -189,10 +189,9 @@ class _QR_View_State extends State<QR_View>
   String result = "카메라 버튼을 눌러 qr 코드를 스캔하세요 .";
 
   Future _scanQR() async {
-    //var qrResult = await BarcodeScanner.scan();
-
-    //context.read<User>().set_machine(qrResult.rawContent.toString(),context.read<Token_login>().Token);
-    context.read<User>().set_machine("41",context.read<Token_login>().Token);
+    var qrResult = await BarcodeScanner.scan();
+    context.read<User>().set_machine(qrResult.rawContent.toString(),context.read<Token_login>().Token);
+    //context.read<User>().set_machine("41",context.read<Token_login>().Token);
     Timer(Duration(milliseconds: 700), () {
       context
           .read<User>()
@@ -222,7 +221,7 @@ class _QR_View_State extends State<QR_View>
       );
     });
     setState(() {
-      //result = qrResult.rawContent.toString();
+      result = qrResult.rawContent.toString();
     });
 
   }

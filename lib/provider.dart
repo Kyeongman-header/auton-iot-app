@@ -62,12 +62,12 @@ class User with ChangeNotifier{
     _cron.schedule(Schedule.parse('* * * * *'), () async {
       try {
           setLocation();
-          final response=await http.post(Uri.parse(
-              'https://auton-iot.com/api/gps/'),
-              body: jsonEncode(
-                  <String, String>{"gps" : "SRID=4326;POINT ("+_longitude+' '+_latitude+')'}),
-              headers: {'Content-Type': 'application/json',
-                'Authorization': 'Token ' + Token});
+          // final response=await http.post(Uri.parse(
+          //     'https://auton-iot.com/api/gps/'),
+          //     body: jsonEncode(
+          //         <String, String>{"gps" : "SRID=4326;POINT ("+_longitude+' '+_latitude+')'}),
+          //     headers: {'Content-Type': 'application/json',
+          //       'Authorization': 'Token ' + Token});
 
           // Use current location
         }
